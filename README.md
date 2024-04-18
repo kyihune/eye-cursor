@@ -1,6 +1,6 @@
 # eye-cursor
 # Spring 2024 Computer Vision Project
-Kariam Yihune and Mahel Napo
+by Mahel Napo and Kariam Yihune
 
 
 # Purpose
