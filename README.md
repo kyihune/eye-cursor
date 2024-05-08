@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-
-
-
-=======
 # Eye Cursor Project
 # Spring 2024 Computer Vision Project
 by Mahel Napo and Kariam Yihune
@@ -85,4 +80,3 @@ The GazeTracking module is integrated into the eye-cursor project to enable the 
 ## License
 
 This project is licensed under the 
->>>>>>> master
