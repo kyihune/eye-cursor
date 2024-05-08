@@ -41,17 +41,23 @@ class GazeTracking(object):
 
     def _analyze(self):
         """Detects the face and initialize Eye objects"""
-        frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
-        faces = self._face_detector(frame)
-
         try:
-            landmarks = self._predictor(frame, faces[0])
-            self.eye_left = Eye(frame, landmarks, 0, self.calibration)
-            self.eye_right = Eye(frame, landmarks, 1, self.calibration)
+            frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+            faces = self._face_detector(frame)
 
-        except IndexError:
-            self.eye_left = None
-            self.eye_right = None
+            try:
+                landmarks = self._predictor(frame, faces[0])
+                self.eye_left = Eye(frame, landmarks, 0, self.calibration)
+                self.eye_right = Eye(frame, landmarks, 1, self.calibration)
+
+            except IndexError:
+                self.eye_left = None
+                self.eye_right = None
+
+        except cv2.error as e:
+            print(f"OpenCV error occurred: {str(e)}")
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
 
     def refresh(self, frame):
         """Refreshes the frame and analyzes it.
@@ -59,8 +65,9 @@ class GazeTracking(object):
         Arguments:
             frame (numpy.ndarray): The frame to analyze
         """
-        self.frame = frame
-        self._analyze()
+        if frame is not None:
+            self.frame = frame
+            self._analyze()
 
     def pupil_left_coords(self):
         """Returns the coordinates of the left pupil"""
@@ -119,6 +126,10 @@ class GazeTracking(object):
 
     def annotated_frame(self):
         """Returns the main frame with pupils highlighted"""
+
+        if self.frame is None:
+            return None
+        
         frame = self.frame.copy()
 
         if self.pupils_located:
