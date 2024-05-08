@@ -32,6 +32,11 @@ Activate the virtual environment:
   ```
 
 4. Install the required dependencies:
+- Cmake is needed to build dlib, download it from [Here](https://cmake.org/):
+  ```
+  sudo apt-get install cmake
+  ```
+  Depending on your system, you might also need to install the visual studio C++ dev kit
 - Using `requirements.txt` file:
   ```
   pip install -r requirements.txt
