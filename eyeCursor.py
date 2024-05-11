@@ -3,11 +3,13 @@ import dlib
 import pyautogui
 import os
 from gaze_tracking import GazeTracking
+#from screenCalibration import estimation_calibration
 
 def main():
     # Initialize the webcam
     webcam = cv2.VideoCapture(0)
 
+    pyautogui.FAILSAFE = False
     # Initialize the face detector and landmark predictor
     detector = dlib.get_frontal_face_detector()
     cwd = os.path.abspath(os.path.dirname(__file__))
@@ -20,7 +22,11 @@ def main():
     # Initialize variables for cursor movement
     move_cursor = True
     prev_face_pos = None
+    prev_eye_pos = None
     move_direction = (0, 0)  # Initial movement direction
+    width, height = pyautogui.size()
+
+    #max_eye_positions = estimation_calibration()
 
     while True:
         # Get a new frame from the webcam
@@ -43,24 +49,40 @@ def main():
 
             # Calculate the center point of the face
             center_x = (landmarks.part(27).x + landmarks.part(8).x) // 2
-            center_y = (landmarks.part(27).y + landmarks.part(8).y) // 2
+            center_y = (landmarks.part(1).y + landmarks.part(15).y) // 2
             face_pos = (center_x, center_y)
 
             # Draw a circle at the face center
             cv2.circle(frame, face_pos, 5, (0, 255, 0), -1)
 
             # Calculate the relative movement of the face
-            if prev_face_pos is not None:
-                delta_x = face_pos[0] - prev_face_pos[0]
-                delta_y = face_pos[1] - prev_face_pos[1]
-                move_direction = (delta_x, delta_y)  # Update movement direction
+
+        #    if prev_face_pos is not None:
+        #        delta_x = face_pos[0] - prev_face_pos[0]
+        #        delta_y = face_pos[1] - prev_face_pos[1]
+        #        move_direction = (delta_x, delta_y)  # Update movement direction
 
             # Update the previous face position
-            prev_face_pos = face_pos
+        #    prev_face_pos = face_pos
 
-        # Move the cursor based on the movement direction
-        if move_cursor:
-            pyautogui.moveRel(move_direction[0], move_direction[1])
+        left_eye_pos = gaze_tracker.pupil_left_coords()
+        right_eye_pos = gaze_tracker.pupil_right_coords()
+
+
+        if prev_eye_pos != None and left_eye_pos != None and right_eye_pos != None:
+
+            eye_delta_x = prev_eye_pos[0] - (left_eye_pos[0] + right_eye_pos[0])/2
+            eye_delta_y = prev_eye_pos[1] - (left_eye_pos[1] + right_eye_pos[1])/2
+            move_direction = (int(eye_delta_x/15 * width ), int(eye_delta_y/10 * height)) # Hard coded values of how far the eyes move in the x and y axes
+
+            # Move the cursor based on the eye movement direction
+            if move_cursor:
+                pyautogui.moveRel(move_direction[0], -1 * move_direction[1], duration = .1) # Duration is .1 to have less twitchy movement
+
+        if left_eye_pos != None and right_eye_pos != None:
+            prev_eye_pos = ((left_eye_pos[0] + right_eye_pos[0])/2, (left_eye_pos[1]+right_eye_pos[1])/2)
+
+
 
         # Send the frame to GazeTracking to analyze it
         gaze_tracker.refresh(frame)
@@ -92,6 +114,8 @@ def main():
             break
         elif key == ord('p'):
             move_cursor = not move_cursor
+            pyautogui.moveTo(960,540)
+
 
     # Release the webcam and close the windows
     webcam.release()
