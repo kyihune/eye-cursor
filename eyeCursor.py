@@ -52,8 +52,6 @@ def main():
             center_y = (landmarks.part(1).y + landmarks.part(15).y) // 2
             face_pos = (center_x, center_y)
 
-            # Draw a circle at the face center
-            cv2.circle(frame, face_pos, 5, (0, 255, 0), -1)
 
             # Calculate the relative movement of the face
 
