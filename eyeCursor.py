@@ -27,6 +27,7 @@ def main():
     width, height = pyautogui.size()
 
     #max_eye_positions = estimation_calibration()
+    blinking_threshold = 4.0  # Adjust this value to change the blinking sensitivity
 
     while True:
         # Get a new frame from the webcam
@@ -90,7 +91,7 @@ def main():
 
         # Check if the eye is blinking or not
         text = ""
-        if gaze_tracker.is_blinking():
+        if gaze_tracker.is_blinking(threshold=blinking_threshold):
             text = "Blinking"
         elif gaze_tracker.is_right():
             text = "Looking right"
