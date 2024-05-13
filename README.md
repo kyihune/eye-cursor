@@ -14,13 +14,13 @@ with simply looking around using gaze tracking with Python and OpenCV. It utiliz
 
 1. Clone the repository:
 git clone https://github.com/kyihune/eye-cursor.git
-Copy code
+
 2. Navigate to the project directory:
 cd eye-cursor
-Copy code
+
 3. (Optional) Create a virtual environment:
 python -m venv myenv
-Copy code
+
 Activate the virtual environment:
 - On Windows:
   ```
@@ -53,7 +53,7 @@ Activate the virtual environment:
 
 2. Run the `example.py` script:
 python example.py
-Copy code
+
 3. The script will open a window showing the webcam feed with gaze tracking information overlaid on the frame.
 
 4. Press 'q' to quit the application.
@@ -65,7 +65,7 @@ Copy code
 python eyeCursor.py
 
 python faceCursor.py
-Copy code
+
 4. The script will open a window showing the webcam feed with gaze tracking, and face tracking for cursor movement.
 
 5. The blinking of the user will be used for couple different comment(they are not set in stone yet), and the face direction will be used to control the cursor movement on the screen.
