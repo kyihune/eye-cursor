@@ -58,17 +58,19 @@ Copy code
 
 4. Press 'q' to quit the application.
 
-## Running the Eye Cursor
+## Running the Eye Cursor or Face Cursor
 1. Make sure you have a webcam connected to your device.
 
-2. Run the `eyeCursor.py` script:
+2. Run the `eyeCursor.py` or `faceCursor.py` script:
 python eyeCursor.py
+
+python faceCursor.py
 Copy code
-3. The script will open a window showing the webcam feed with gaze tracking, and face tracking for cursor movement.
+4. The script will open a window showing the webcam feed with gaze tracking, and face tracking for cursor movement.
 
-4. The blinking of the user will be used for couple different comment(they are not set in stone yet), and the face direction will be used to control the cursor movement on the screen.
+5. The blinking of the user will be used for couple different comment(they are not set in stone yet), and the face direction will be used to control the cursor movement on the screen.
 
-5. Press 'q' to quit the application or 'p' to pause the face tracking to reset the position of your face.
+6. Press 'q' to quit the application or 'p' to pause the face tracking to reset the position of your face.
 
 ## Gaze Tracking
 
