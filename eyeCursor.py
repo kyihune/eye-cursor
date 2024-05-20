@@ -2,13 +2,20 @@ import cv2
 import dlib
 import pyautogui
 import os
+import time
 from gaze_tracking import GazeTracking
-#from screenCalibration import estimation_calibration
+
+
+
+def left_click():
+    print("clicked")
+    pyautogui.click(button="left")
 
 def main():
     # Initialize the webcam
     webcam = cv2.VideoCapture(0)
 
+    # This failsafe crashes the program when the mouse is in a corner if it is true
     pyautogui.FAILSAFE = False
     # Initialize the face detector and landmark predictor
     detector = dlib.get_frontal_face_detector()
@@ -25,9 +32,15 @@ def main():
     prev_eye_pos = None
     move_direction = (0, 0)  # Initial movement direction
     width, height = pyautogui.size()
+    smoothing_factor = .6
+    blink_threshold = 5.0
+    movement_threshold = 1.5
+    blink_timer_start = None
+    blink_duration = None
+
+
 
     #max_eye_positions = estimation_calibration()
-    blinking_threshold = 4.0  # Adjust this value to change the blinking sensitivity
 
     while True:
         # Get a new frame from the webcam
@@ -53,6 +66,8 @@ def main():
             center_y = (landmarks.part(1).y + landmarks.part(15).y) // 2
             face_pos = (center_x, center_y)
 
+            # Draw a circle at the face center
+            cv2.circle(frame, face_pos, 5, (0, 255, 0), -1)
 
             # Calculate the relative movement of the face
 
@@ -72,11 +87,12 @@ def main():
 
             eye_delta_x = prev_eye_pos[0] - (left_eye_pos[0] + right_eye_pos[0])/2
             eye_delta_y = prev_eye_pos[1] - (left_eye_pos[1] + right_eye_pos[1])/2
-            move_direction = (int(eye_delta_x/15 * width ), int(eye_delta_y/10 * height)) # Hard coded values of how far the eyes move in the x and y axes
+
+            move_direction = (int(eye_delta_x/15 * (width * smoothing_factor)), int(eye_delta_y/10 * (height * smoothing_factor * 0.5625))) # Hard coded values of how far the eyes move in the x and y axes
 
             # Move the cursor based on the eye movement direction
-            if move_cursor:
-                pyautogui.moveRel(move_direction[0], -1 * move_direction[1], duration = .1) # Duration is .1 to have less twitchy movement
+            if move_cursor and (abs(eye_delta_x) + abs(eye_delta_y)) >= (2* movement_threshold):
+                pyautogui.moveRel(move_direction[0], -1 * move_direction[1], duration= .1) # Duration is .1 to have less twitchy movement
 
         if left_eye_pos != None and right_eye_pos != None:
             prev_eye_pos = ((left_eye_pos[0] + right_eye_pos[0])/2, (left_eye_pos[1]+right_eye_pos[1])/2)
@@ -91,17 +107,21 @@ def main():
 
         # Check if the eye is blinking or not
         text = ""
-        if gaze_tracker.is_blinking(threshold=blinking_threshold):
+        if gaze_tracker.is_blinking(threshold=blink_threshold):
             text = "Blinking"
-        elif gaze_tracker.is_right():
-            text = "Looking right"
-        elif gaze_tracker.is_left():
-            text = "Looking left"
-        elif gaze_tracker.is_center():
-            text = "Looking center"
+            if blink_timer_start == None:
+                blink_timer_start = time.time()
+
+        else:
+            if blink_timer_start != None:
+                blink_duration = time.time() - blink_timer_start
+                #print(blink_duration)
+                if blink_duration >= 1:
+                    left_click()
+                blink_timer_start = None
 
         # Display the prediction
-        #cv2.putText(annotated_frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+        cv2.putText(annotated_frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
 
 
         # Display the resulting frame
@@ -113,7 +133,7 @@ def main():
             break
         elif key == ord('p'):
             move_cursor = not move_cursor
-            pyautogui.moveTo(960,540)
+            pyautogui.moveTo(width/2,height/2)
 
 
     # Release the webcam and close the windows
